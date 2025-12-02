@@ -1,4 +1,3 @@
-
 how to use the git. when in the folder you are working in, open a terminal your project folder since you already have the remote origin added you don't need to do anything other than this.
 
 git pull
