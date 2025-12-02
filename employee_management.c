@@ -24,9 +24,13 @@ typedef struct {
     float salary;
 } Employee;
 
+
+/*========================*/
 /*function declarations*/
 /*========================*/
 
+
+/*========================*/
 /*menu features*/
 /*========================*/
 static void printMenu(void){
@@ -50,6 +54,7 @@ static void searchEmployeeByID(void){
 }
 
 
+/*========================*/
 /*input and help functions*/
 /*========================*/
 static void clearInputBuffer(void){
@@ -117,7 +122,7 @@ static void clearScreen(void){
 #ifdef _WIN32
     system("cls");
 #else
-    /* ANSI escape codes: clear screen + move cursor to top-left */
+    /*escape codes*/
     printf("\033[2J\033[H");
 #endif
 }
@@ -133,12 +138,12 @@ static void pauseForEnter(void){
 }
 
 
+/*========================*/
 /*main*/
 /*===============*/
 int main(void)
 {
     int choice;
-
     do {
         clearScreen();          /* wipe the old stuff */
         printMenu();            /* draw the main menu */
@@ -162,11 +167,9 @@ int main(void)
             printf("Invalid choice. Please try again.\n");
             break;
         }
-
         if (choice != 4) {
             pauseForEnter();    /* “Press Enter to go back to menu” */
         }
-
     } while (choice != 4);
 
     return 0;
