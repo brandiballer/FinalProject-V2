@@ -13,3 +13,6 @@ $(TARGET): $(SRC)
 
 clean:
 	rm -f $(TARGET) *.o
+
+superclean: clean
+	rm -f employees.dat
