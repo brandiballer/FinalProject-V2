@@ -1,6 +1,6 @@
 /*
 * File: employee_management.c
-* Author: Liam Keats 0307334k@acadiau.ca and Brandi Johnson (email here)
+* Author: Liam Keats 0307334k@acadiau.ca and Brandi Johnson (0302542j@acadiau.ca)
 * Date: November 29th 2025
 * Purpose: Skeleton for employee management system
 * Notes: Contains struct, macros, and function
@@ -567,3 +567,4 @@ int main(void)
 
     return 0;
 }
+
