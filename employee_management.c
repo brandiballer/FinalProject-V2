@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define NAME_LEN 50
 #define POSITION_LEN 50
@@ -32,7 +33,7 @@ typedef struct {
 
 /* -------- Function declarations (prototypes) -------- */
 
-/* menu core
+/* menu core */
 static void printMenu(void);
 static void addEmployee(void);
 static void listEmployees(void);
@@ -52,7 +53,7 @@ static void importFromFile(void);
 static int  loadAllEmployees(Employee employees[], int max);
 static int  saveAllEmployees(Employee employees[], int count);
 static void insertEmployeeSorted(Employee employees[], int *count, const Employee *emp);
-
+static int nameHasDigit(const char *s);
 
 /*========================*/
 /*menu features*/
@@ -98,23 +99,37 @@ static void readLine(char *buffer, size_t size){
     }
 }
 
-static int getInt(const char *prompt){
-    int value;
-    int result;
+static int getInt(const char *prompt)
+{
+    char buffer[100];
+    char *endptr;
+    long value;
 
     for (;;) {
         printf("%s", prompt);
-        result = scanf("%d", &value);
+        readLine(buffer, sizeof buffer);
 
-        if (result == 1) {
-            clearInputBuffer();
-            return value;
+        if (isStringEmpty(buffer)) {
+            printf("Input cannot be empty. Please enter a whole number (e.g. 101).\n");
+            continue;
         }
 
-        printf("Invalid input. Please enter an integer.\n");
-        clearInputBuffer();
+        value = strtol(buffer, &endptr, 10);
+
+        /* Skip trailing spaces/tabs */
+        while (*endptr == ' ' || *endptr == '\t') {
+            endptr++;
+        }
+
+        if (*endptr != '\0') {
+            printf("Invalid input. Please enter digits only (e.g. 101).\n");
+            continue;
+        }
+
+        return (int)value;
     }
 }
+
 
 static float getFloat(const char *prompt){
     float value;
@@ -204,6 +219,23 @@ static int isStringEmpty(const char *s)
     return *s == '\0';
 }
 
+static int nameHasDigit(const char *s)
+{
+    if (s == NULL) {
+        return 0;
+    }
+
+    while (*s != '\0') {
+        if (isdigit((unsigned char)*s)) {
+            return 1;
+        }
+        s++;
+    }
+
+    return 0;
+}
+
+
 /* Load all employees from the data file into an array.
  * Returns the number of employees loaded (0 if file does not exist). */
 static int loadAllEmployees(Employee employees[], int max)
@@ -280,7 +312,7 @@ static void addEmployee(void)
 
     /* id validating */
     for (;;) {
-        emp.employeeID = getInt("Enter employee ID: ");
+        emp.employeeID = getInt("Enter employee ID (positive whole number): ");
 
         if (emp.employeeID <= 0) {
             printf("Employee ID must be a positive integer. Please try again.\n");
@@ -293,19 +325,21 @@ static void addEmployee(void)
         }
     }
 
-    /* make sure names cant be empty */
+    /* make sure names cant be empty or contain numbers */
     do {
-        printf("Enter name: ");
+        printf("Enter employee full name (letters only, no numbers): ");
         readLine(emp.name, NAME_LEN);
 
         if (isStringEmpty(emp.name)) {
             printf("Name cannot be empty. Please enter a valid name.\n");
+        } else if (nameHasDigit(emp.name)) {
+            printf("Name cannot contain numbers. Please enter letters only (e.g. 'Liam Keats').\n");
         }
-    } while (isStringEmpty(emp.name));
+    } while (isStringEmpty(emp.name) || nameHasDigit(emp.name));
 
     /* making sure the position is not empty or negative */
     do {
-        printf("Enter position: ");
+        printf("Enter position (e.g. 'Manager', 'Technician 2'): ");
         readLine(emp.position, POSITION_LEN);
 
         if (isStringEmpty(emp.position)) {
@@ -315,7 +349,7 @@ static void addEmployee(void)
 
     /* salary cannot be less than 0 thats illegal */
     do {
-        emp.salary = getFloat("Enter monthly salary: ");
+        emp.salary = getFloat("Enter monthly salary(positive integers or floats only):");
 
         if (emp.salary < 0.0f) {
             printf("Salary cannot be negative. Please enter a value >= 0.\n");
@@ -372,36 +406,48 @@ static void listEmployees(void)
 static void searchEmployeeByID(void)
 {
     int targetID;
-    Employee emp;
-    FILE *fp;
-    int found = 0;
 
-    clearScreen();
-    printf("====== Search Employee by ID ======\n\n");
+    for (;;) {
+        FILE *fp;
+        Employee emp;
+        int found = 0;
 
-    targetID = getInt("Enter employee ID to search for: ");
+        clearScreen();
+        printf("========== Search Employee by ID ==========\n\n");
+        printf("Note: Employee IDs are positive whole numbers (e.g. 101).\n");
+        printf("Enter -1 to return to the main menu.\n\n");
 
-    fp = fopen(DATA_FILE, "rb");
-    if (fp == NULL) {
-        printf("No data file found. Cannot search.\n");
-        return;
-    }
+        targetID = getInt("Enter employee ID to search for: ");
 
-    while (fread(&emp, sizeof(Employee), 1, fp) == 1) {
-        if (emp.employeeID == targetID) {
-            printf("\nEmployee found:\n");
-            printEmployee(&emp);
-            found = 1;
+        if (targetID == -1) {
+            printf("\nReturning to the main menu.\n");
             break;
         }
-    }
 
-    if (!found) {
-        printf("\nEmployee with ID %d not found.\n", targetID);
-    }
+        fp = fopen(DATA_FILE, "rb");
+        if (fp == NULL) {
+            printf("\nNo data file found. Cannot search employees.\n");
+        } else {
+            while (fread(&emp, sizeof(Employee), 1, fp) == 1) {
+                if (emp.employeeID == targetID) {
+                    found = 1;
+                    break;
+                }
+            }
 
-    fclose(fp);
+            fclose(fp);
+
+            if (found) {
+                printf("\nEmployee found:\n");
+                printEmployee(&emp);
+            } else {
+                printf("\nEmployee with ID %d not found.\n", targetID);
+            }
+        }
+        pauseForEnter();
+    }
 }
+
 
 static void importFromFile(void)
 {
@@ -421,6 +467,7 @@ static void importFromFile(void)
     printf("Expected format per line:\n");
     printf("employeeID,name,position,salary\n");
     printf("Example: 101,Liam Keats,Manager,5000.00\n\n");
+    printf("Notes: employeeID must be a positive whole number; names should not contain numbers.\n\n");
 
     printf("Enter import filename: ");
     readLine(filename, sizeof filename);
@@ -468,6 +515,13 @@ static void importFromFile(void)
 
         if (isStringEmpty(emp.name)) {
             printf("Line %d: empty name, skipping.\n", lineNumber);
+            skipped++;
+            continue;
+        }
+
+        if (nameHasDigit(emp.name)) {
+            printf("Line %d: name '%s' contains digits, skipping.\n",
+                lineNumber, emp.name);
             skipped++;
             continue;
         }

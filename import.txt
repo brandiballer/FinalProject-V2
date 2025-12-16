@@ -1,11 +1,7 @@
-employeeID,name,position,salary
-101,Liam Keats,Manager,6500.00
-102,Brandi Johnson,Engineer,5400.50
-103,Alex Carter,Technician,4200.00
-104,Jordan Smith,HR Specialist,3900.75
-105,Taylor Brooks,Sales Representative,4100.25
-106,Morgan Lee,Accountant,4800.00
-107,Casey Brown,IT Support,3600.00
-108,Riley Adams,Marketing Coordinator,4300.00
-109,Jamie Clark,Project Manager,6200.00
-110,Drew Kelly,Intern,1800.00
+200,Duplicate ID,Should be skipped,5000.00
+300,Jordan Smith,HR Specialist,3900.75
+301,1234,BadName,4000.00
+302,Valid Person,Sales Representative,-100.00
+303,Riley Adams,Marketing Coordinator,4300.00
+abc,BadID,Whatever,3000
+304,Morgan Lee,Accountant,4800.00
