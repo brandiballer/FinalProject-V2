@@ -1,3 +1,4 @@
+200,Alex Jogger,Intern,5000.00
 200,Duplicate ID,Should be skipped,5000.00
 300,Jordan Smith,HR Specialist,3900.75
 301,1234,BadName,4000.00
